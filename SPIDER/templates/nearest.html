@@ -1,0 +1,757 @@
+{% extends "base.html" %}
+
+{% block title %}
+Find Nearest Hospital — Smart EMS
+{% endblock %}
+
+{% block content %}
+
+<!-- Leaflet Map CSS -->
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+    #hospitalMap {
+        width: 100%;
+        height: 500px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 20px;
+        overflow: hidden;
+    }
+
+    .map-card {
+        background: var(--card-bg, #1b1f24);
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+    }
+
+    .map-instruction {
+        text-align: center;
+        color: var(--text-secondary);
+        margin-top: 12px;
+        font-size: 0.9rem;
+    }
+</style>
+
+
+<div class="container py-4">
+
+    <!-- PAGE HEADER -->
+    <div class="text-center mb-4">
+
+        <h2 class="section-title">
+            Find Nearest Hospital
+        </h2>
+
+        <p class="section-subtitle">
+            Use your location or select a location on the map
+            to find nearby hospitals with available beds and doctors.
+        </p>
+
+        <!-- USE CURRENT LOCATION -->
+        <button
+            class="location-btn"
+            id="findNearestBtn"
+            onclick="findNearestHospitals()"
+        >
+            <i class="bi bi-geo-alt-fill"></i>
+            Use My Location
+        </button>
+
+    </div>
+
+
+    <!-- MAP -->
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="map-card">
+
+                <div id="hospitalMap"></div>
+
+                <p class="map-instruction">
+
+                    <i class="bi bi-cursor"></i>
+
+                    Click anywhere on the map to search
+                    for hospitals near that location.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LOADING -->
+    <div
+        id="loadingArea"
+        class="text-center py-4"
+        style="display: none;"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <p
+            class="mt-2"
+            style="color: var(--text-secondary);"
+        >
+            Finding nearest hospitals...
+        </p>
+
+    </div>
+
+
+    <!-- ERROR -->
+    <div
+        id="errorArea"
+        class="text-center py-3"
+        style="display: none;"
+    >
+
+        <div class="alert-custom alert-danger-custom">
+
+            <i class="bi bi-exclamation-triangle"></i>
+
+            <span id="errorMsg"></span>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div id="resultsArea"></div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<!-- Leaflet Map JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+    /* =========================================
+       MAP INITIALIZATION
+    ========================================= */
+
+    let map;
+    let selectedMarker = null;
+
+
+    function initializeMap() {
+
+        /*
+         Default location
+
+         Chennai area
+        */
+
+        const defaultLat = 13.0827;
+        const defaultLng = 80.2707;
+
+
+        map = L.map('hospitalMap').setView(
+            [defaultLat, defaultLng],
+            12
+        );
+
+
+        /*
+         OpenStreetMap tiles
+        */
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                maxZoom: 19,
+                attribution:
+                    '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+
+        /*
+         Click on map
+        */
+
+        map.on('click', function(event) {
+
+            const lat = event.latlng.lat;
+            const lng = event.latlng.lng;
+
+
+            setLocationMarker(lat, lng);
+
+
+            fetchNearest(lat, lng);
+
+        });
+
+    }
+
+
+    /* =========================================
+       SET LOCATION MARKER
+    ========================================= */
+
+    function setLocationMarker(lat, lng) {
+
+        /*
+         Remove previous marker
+        */
+
+        if (selectedMarker) {
+
+            map.removeLayer(selectedMarker);
+
+        }
+
+
+        /*
+         Add new marker
+        */
+
+        selectedMarker = L.marker(
+            [lat, lng]
+        )
+        .addTo(map)
+        .bindPopup(
+            '<b>Selected Location</b><br>Searching nearby hospitals...'
+        )
+        .openPopup();
+
+
+        /*
+         Move map to selected location
+        */
+
+        map.setView(
+            [lat, lng],
+            14
+        );
+
+    }
+
+
+    /* =========================================
+       RENDER HOSPITAL RESULTS
+    ========================================= */
+
+    function renderResults(hospitals) {
+
+        const area =
+            document.getElementById('resultsArea');
+
+
+        if (!hospitals.length) {
+
+            area.innerHTML = `
+
+                <p
+                    class="text-center"
+                    style="color: var(--text-secondary);"
+                >
+                    No hospitals found nearby.
+                </p>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = `
+
+            <h4 class="section-title mb-3">
+
+                <span class="live-dot"></span>
+
+                Nearest Hospitals
+
+            </h4>
+
+        `;
+
+
+        hospitals.forEach((h, i) => {
+
+            const bedStatus =
+                h.available_beds > 0
+                    ? 'badge-available'
+                    : 'badge-unavailable';
+
+
+            const bedText =
+                h.available_beds > 0
+                    ? h.available_beds + ' Beds Free'
+                    : 'No Beds';
+
+
+            html += `
+
+                <div class="nearest-card ${i === 0 ? 'rank-1' : ''}">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+
+                        <div class="rank-badge">
+
+                            ${i + 1}
+
+                        </div>
+
+
+                        <div class="flex-grow-1">
+
+                            <h5
+                                style="
+                                    margin: 0;
+                                    font-weight: 700;
+                                "
+                            >
+
+                                ${h.name}
+
+                            </h5>
+
+
+                            <small
+                                style="
+                                    color:
+                                    var(--text-secondary);
+                                "
+                            >
+
+                                <i
+                                    class="bi bi-geo-alt"
+                                ></i>
+
+                                ${h.address},
+                                ${h.city}
+
+                            </small>
+
+                        </div>
+
+
+                        <div class="distance-badge">
+
+                            ${h.distance_km} km
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- HOSPITAL STATUS -->
+
+                    <div
+                        class="
+                            d-flex
+                            gap-2
+                            flex-wrap
+                            mb-3
+                        "
+                    >
+
+                        <span
+                            class="${bedStatus}"
+                        >
+
+                            ${bedText}
+
+                        </span>
+
+
+                        <span
+                            class="badge-available"
+                        >
+
+                            ${h.available_icu}
+                            ICU Free
+
+                        </span>
+
+
+                        <span
+                            class="badge-available"
+                        >
+
+                            ${h.available_doctors}
+                            /
+                            ${h.total_doctors}
+                            Doctors
+
+                        </span>
+
+
+                        <span class="rating">
+
+                            <i
+                                class="bi bi-star-fill"
+                            ></i>
+
+                            ${h.rating}
+
+                        </span>
+
+
+                        ${
+                            h.is_24x7
+                            ? '<span class="badge-24x7">24x7</span>'
+                            : ''
+                        }
+
+                    </div>
+
+
+                    <!-- ACTION BUTTONS -->
+
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        <a
+                            href="/book/${h.id}"
+                            class="
+                                btn-sm-custom
+                                btn-book
+                            "
+                        >
+
+                            <i
+                                class="
+                                    bi
+                                    bi-plus-circle
+                                "
+                            ></i>
+
+                            Book Bed
+
+                        </a>
+
+
+                        <a
+                            href="/hospital/${h.id}"
+                            class="
+                                btn-sm-custom
+                                btn-view
+                            "
+                        >
+
+                            View Details
+
+                        </a>
+
+
+                        <a
+                            href="tel:${h.emergency_phone}"
+                            class="
+                                btn-sm-custom
+                                btn-view
+                            "
+                            style="
+                                color:
+                                var(--emergency);
+                            "
+                        >
+
+                            <i
+                                class="
+                                    bi
+                                    bi-telephone-fill
+                                "
+                            ></i>
+
+                            ${h.emergency_phone}
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+
+        area.innerHTML = html;
+
+    }
+
+
+    /* =========================================
+       FETCH NEAREST HOSPITALS
+    ========================================= */
+
+    async function fetchNearest(lat, lng) {
+
+        document
+            .getElementById('loadingArea')
+            .style.display = 'block';
+
+
+        document
+            .getElementById('errorArea')
+            .style.display = 'none';
+
+
+        document
+            .getElementById('resultsArea')
+            .innerHTML = '';
+
+
+        try {
+
+            const resp = await fetch(
+                '/api/nearest',
+                {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body: JSON.stringify({
+
+                        latitude: lat,
+
+                        longitude: lng
+
+                    })
+
+                }
+            );
+
+
+            if (!resp.ok) {
+
+                throw new Error(
+                    'Failed to fetch hospitals'
+                );
+
+            }
+
+
+            const data = await resp.json();
+
+
+            renderResults(data);
+
+        }
+
+
+        catch (error) {
+
+            document
+                .getElementById('errorMsg')
+                .textContent =
+                    'Failed to fetch hospitals. Please try again.';
+
+
+            document
+                .getElementById('errorArea')
+                .style.display =
+                    'block';
+
+        }
+
+
+        finally {
+
+            document
+                .getElementById('loadingArea')
+                .style.display =
+                    'none';
+
+        }
+
+    }
+
+
+    /* =========================================
+       USE MY CURRENT LOCATION
+    ========================================= */
+
+    function findNearestHospitals() {
+
+        const btn =
+            document.getElementById(
+                'findNearestBtn'
+            );
+
+
+        btn.disabled = true;
+
+
+        btn.innerHTML = `
+
+            <span class="loading-spinner"></span>
+
+            Getting location...
+
+        `;
+
+
+        /*
+         Check browser support
+        */
+
+        if (!navigator.geolocation) {
+
+            document
+                .getElementById('errorMsg')
+                .textContent =
+                    'Geolocation is not supported by your browser.';
+
+
+            document
+                .getElementById('errorArea')
+                .style.display =
+                    'block';
+
+
+            resetLocationButton();
+
+            return;
+
+        }
+
+
+        /*
+         Get user location
+        */
+
+        navigator.geolocation.getCurrentPosition(
+
+            function(position) {
+
+                const lat =
+                    position.coords.latitude;
+
+
+                const lng =
+                    position.coords.longitude;
+
+
+                /*
+                 Put marker on map
+                */
+
+                setLocationMarker(
+                    lat,
+                    lng
+                );
+
+
+                /*
+                 Search hospitals
+                */
+
+                fetchNearest(
+                    lat,
+                    lng
+                );
+
+
+                resetLocationButton();
+
+            },
+
+
+            function(error) {
+
+                document
+                    .getElementById('errorMsg')
+                    .textContent =
+                        'Location access denied. Please select a location on the map.';
+
+
+                document
+                    .getElementById('errorArea')
+                    .style.display =
+                        'block';
+
+
+                resetLocationButton();
+
+            },
+
+
+            {
+
+                enableHighAccuracy: true,
+
+                timeout: 10000,
+
+                maximumAge: 0
+
+            }
+
+        );
+
+    }
+
+
+    /* =========================================
+       RESET LOCATION BUTTON
+    ========================================= */
+
+    function resetLocationButton() {
+
+        const btn =
+            document.getElementById(
+                'findNearestBtn'
+            );
+
+
+        btn.disabled = false;
+
+
+        btn.innerHTML = `
+
+            <i
+                class="
+                    bi
+                    bi-geo-alt-fill
+                "
+            ></i>
+
+            Use My Location
+
+        `;
+
+    }
+
+
+    /* =========================================
+       START MAP
+    ========================================= */
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function() {
+
+            initializeMap();
+
+        }
+    );
+
+</script>
+
+{% endblock %}

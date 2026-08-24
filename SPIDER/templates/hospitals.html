@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Hospitals — Smart EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title">All Partner Hospitals</h2>
+    <p class="section-subtitle">Browse real-time availability across our network</p>
+
+    <div class="row g-4">
+        {% for hospital in hospitals %}
+        <div class="col-md-6 col-lg-4">
+            <div class="hospital-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="hospital-name">{{ hospital.name }}</div>
+                        <div class="hospital-location">
+                            <i class="bi bi-geo-alt"></i> {{ hospital.address }}, {{ hospital.city }}
+                        </div>
+                    </div>
+                    <span class="rating"><i class="bi bi-star-fill"></i> {{ hospital.rating }}</span>
+                </div>
+
+                <div class="d-flex gap-2 my-2 flex-wrap">
+                    {% if hospital.is_24x7 %}<span class="badge-24x7">24x7 Emergency</span>{% endif %}
+                    {% if hospital.available_beds > 0 %}
+                    <span class="badge-available">{{ hospital.available_beds }} Beds Free</span>
+                    {% else %}
+                    <span class="badge-unavailable">No Beds</span>
+                    {% endif %}
+                    {% if hospital.available_icu > 0 %}
+                    <span class="badge-available">{{ hospital.available_icu }} ICU Free</span>
+                    {% endif %}
+                </div>
+
+                <div class="availability-bar">
+                    <div class="availability-label">
+                        <span>General Beds</span>
+                        <span>{{ hospital.available_beds }}/{{ hospital.total_beds }}</span>
+                    </div>
+                    <div class="progress-custom">
+                        <div class="progress-fill beds" style="width: {{ (hospital.available_beds / hospital.total_beds * 100)|int }}%"></div>
+                    </div>
+                </div>
+
+                <div class="availability-bar">
+                    <div class="availability-label">
+                        <span>Doctors On Duty</span>
+                        <span>{{ hospital.doctors|selectattr('is_available')|list|length }}/{{ hospital.doctors|length }}</span>
+                    </div>
+                    <div class="progress-custom">
+                        {% set avail = hospital.doctors|selectattr('is_available')|list|length %}
+                        <div class="progress-fill doctors" style="width: {{ (avail / hospital.doctors|length * 100)|int if hospital.doctors|length else 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mt-2" style="color: var(--text-secondary); font-size: 0.85rem;">
+                    <i class="bi bi-telephone"></i> {{ hospital.phone }} |
+                    <i class="bi bi-exclamation-triangle"></i> {{ hospital.emergency_phone }}
+                </div>
+
+                <div class="card-actions">
+                    <a href="{{ url_for('book', hospital_id=hospital.id) }}" class="btn-sm-custom btn-book">
+                        <i class="bi bi-plus-circle"></i> Book Bed
+                    </a>
+                    <a href="{{ url_for('hospital_detail', hospital_id=hospital.id) }}" class="btn-sm-custom btn-view">
+                        View Doctors
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Dashboard</title>
+</head>
+<body>
+
+<h2>Welcome {{ user.full_name }}</h2>
+
+<h3>Bookings</h3>
+
+<table border="1">
+<tr>
+    <th>Hospital</th>
+    <th>Patient</th>
+    <th>Status</th>
+</tr>
+
+{% for b in bookings %}
+<tr>
+    <td>{{ b.hospital.name }}</td>
+    <td>{{ b.patient_name }}</td>
+    <td>{{ b.status }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<hr>
+
+<h3>Check-up Records</h3>
+
+<table border="1">
+<tr>
+    <th>Date</th>
+    <th>Doctor</th>
+    <th>Diagnosis</th>
+</tr>
+
+{% for c in checkups %}
+<tr>
+    <td>{{ c.checkup_date.strftime('%d-%m-%Y') }}</td>
+    <td>{{ c.doctor_name }}</td>
+    <td>{{ c.diagnosis }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<hr>
+
+<h3>Prescriptions</h3>
+
+<table border="1">
+<tr>
+    <th>Medicine</th> 
+    <th>Dosage</th>
+    <th>Instructions</th>
+</tr>
+
+{% for p in prescriptions %}
+<tr>
+    <td>{{ p.medicine }}</td>
+    <td>{{ p.dosage }}</td>
+    <td>{{ p.instructions }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Book a Bed — Smart EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h2 class="section-title text-center">Book Emergency Bed</h2>
+            <p class="section-subtitle text-center">Fill in patient details to reserve a bed instantly</p>
+
+            <div class="form-card">
+                <form method="POST" action="{{ url_for('book', hospital_id=selected.id if selected else None) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Select Hospital *</label>
+                        <select class="form-select" name="hospital_id" id="hospitalSelect" required>
+                            <option value="">Choose a hospital...</option>
+                            {% for h in hospitals %}
+                            <option value="{{ h.id }}"
+                                {% if selected and selected.id == h.id %}selected{% endif %}
+                                data-beds="{{ h.available_beds }}"
+                                data-icu="{{ h.available_icu }}">
+                                {{ h.name }} — {{ h.available_beds }} beds, {{ h.available_icu }} ICU ({{ h.city }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div id="availabilityHint" class="mt-2" style="font-size: 0.85rem; color: var(--accent);"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Patient Name *</label>
+                            <input type="text" class="form-control" name="patient_name" placeholder="Full name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" name="phone" placeholder="10-digit mobile" required pattern="[0-9]{10}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Age *</label>
+                            <input type="number" class="form-control" name="age" placeholder="Age" required min="1" max="120">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Bed Type *</label>
+                            <select class="form-select" name="bed_type" id="bedType" required>
+                                <option value="General">General Bed</option>
+                                <option value="ICU">ICU Bed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Emergency Type *</label>
+                            <select class="form-select" name="emergency_type" required>
+                                <option value="">Select...</option>
+                                <option value="Cardiac">Cardiac Emergency</option>
+                                <option value="Trauma">Trauma / Accident</option>
+                                <option value="Stroke">Stroke</option>
+                                <option value="Respiratory">Respiratory Distress</option>
+                                <option value="Burn">Burn Injury</option>
+                                <option value="Pediatric">Pediatric Emergency</option>
+                                <option value="Other">Other Emergency</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary-custom w-100 mt-2" style="justify-content: center;">
+                        <i class="bi bi-check-circle"></i> Confirm Bed Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('hospitalSelect').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    const hint = document.getElementById('availabilityHint');
+    if (opt.value) {
+        hint.innerHTML = '<i class="bi bi-info-circle"></i> Available: ' + opt.dataset.beds + ' general beds, ' + opt.dataset.icu + ' ICU beds';
+    } else {
+        hint.innerHTML = '';
+    }
+});
+if (document.getElementById('hospitalSelect').value) {
+    document.getElementById('hospitalSelect').dispatchEvent(new Event('change'));
+}
+</script>
+{% endblock %}

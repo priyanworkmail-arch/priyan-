@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Users - SEMS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        nav {
+            background: #111827;
+            padding: 18px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav h2 {
+            color: white;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:hover {
+            color: #38bdf8;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .admin {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .user {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        select {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+        }
+
+        button {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .delete {
+            background: #dc2626;
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <h2>SEMS</h2>
+
+    <div>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin') }}">Administration</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Manage Users</h1>
+        <p>View and manage SEMS users and their roles.</p>
+    </div>
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Change Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for user in users %}
+
+                <tr>
+
+                    <td>{{ user.id }}</td>
+
+                    <td>{{ user.full_name }}</td>
+
+                    <td>{{ user.username }}</td>
+
+                    <td>{{ user.phone }}</td>
+
+                    <td>
+
+                        <span class="badge {{ user.role }}">
+                            {{ user.role|upper }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {% if user.id != current_user.id %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('change_user_role', user_id=user.id) }}"
+                        >
+
+                            <select name="role">
+
+                                <option
+                                    value="user"
+                                    {% if user.role == 'user' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    User
+                                </option>
+
+                                <option
+                                    value="admin"
+                                    {% if user.role == 'admin' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    Admin
+                                </option>
+
+                            </select>
+
+                            <button type="submit">
+                                Save
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <small>Current account</small>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if user.id != current_user.id %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_user', user_id=user.id) }}"
+                            onsubmit="return confirm('Delete this user?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="7">
+                        No users found.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

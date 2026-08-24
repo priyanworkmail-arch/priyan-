@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+                    <h4>My Profile</h4>
+                </div>
+
+                <div class="card-body text-center">
+
+                    <img src="https://via.placeholder.com/120"
+                         class="rounded-circle mb-3"
+                         alt="Profile Picture">
+
+                    <h4>{{ user.full_name }}</h4>
+
+                    <p class="text-muted">@{{ user.username }}</p>
+
+                    <hr>
+
+                    <p><strong>Phone:</strong><br>{{ user.phone }}</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-8">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-success text-white">
+                    <h4>My Bookings</h4>
+                </div>
+
+                <div class="card-body">
+
+                    {% if user.bookings %}
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Hospital</th>
+                                <th>Bed Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for booking in user.bookings %}
+
+                        <tr>
+                            <td>SEMS-{{ "%04d"|format(booking.id) }}</td>
+                            <td>{{ booking.hospital.name }}</td>
+                            <td>{{ booking.bed_type }}</td>
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>{{ booking.created_at.strftime("%d-%m-%Y %H:%M") }}</td>
+                        </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                    {% else %}
+
+                    <div class="alert alert-info text-center">
+                        <h5>No bookings found.</h5>
+                        <a href="{{ url_for('book') }}" class="btn btn-primary mt-2">
+                            Book a Bed
+                        </a>
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

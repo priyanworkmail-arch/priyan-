@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Doctors - SEMS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        nav {
+            background: #111827;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h2 {
+            color: white;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 330px 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.07);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        .delete {
+            background: #dc2626;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .available {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        @media(max-width: 900px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <h2>SEMS</h2>
+
+    <div>
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('admin') }}">
+            Administration
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <h1>Manage Doctors</h1>
+
+    <br>
+
+    <div class="grid">
+
+        <!-- ADD DOCTOR -->
+
+        <div class="card">
+
+            <h2>Add Doctor</h2>
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_doctors') }}"
+            >
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Doctor name"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="specialty"
+                    placeholder="Specialty"
+                    required
+                >
+
+                <select name="hospital_id" required>
+
+                    <option value="">
+                        Select Hospital
+                    </option>
+
+                    {% for hospital in hospitals %}
+
+                    <option value="{{ hospital.id }}">
+                        {{ hospital.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <select name="shift">
+
+                    <option value="Day">
+                        Day
+                    </option>
+
+                    <option value="Night">
+                        Night
+                    </option>
+
+                    <option value="24x7">
+                        24x7
+                    </option>
+
+                </select>
+
+                <input
+                    type="number"
+                    name="experience_years"
+                    placeholder="Experience years"
+                    value="5"
+                    min="0"
+                >
+
+                <label>
+
+                    <input
+                        type="checkbox"
+                        name="is_available"
+                        checked
+                    >
+
+                    Available
+
+                </label>
+
+                <br><br>
+
+                <button type="submit">
+                    Add Doctor
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- DOCTOR LIST -->
+
+        <div class="card">
+
+            <h2>Doctors</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Specialty</th>
+                        <th>Hospital</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for doctor in doctors %}
+
+                    <tr>
+
+                        <td>
+                            {{ doctor.name }}
+                        </td>
+
+                        <td>
+                            {{ doctor.specialty }}
+                        </td>
+
+                        <td>
+                            {{ doctor.hospital.name }}
+                        </td>
+
+                        <td>
+                            {{ doctor.experience_years }} years
+                        </td>
+
+                        <td>
+
+                            {% if doctor.is_available %}
+
+                                <span class="available">
+                                    Available
+                                </span>
+
+                            {% else %}
+
+                                <span class="unavailable">
+                                    Unavailable
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_doctor', doctor_id=doctor.id) }}"
+                                onsubmit="return confirm('Delete this doctor?');"
+                            >
+
+                                <button
+                                    class="delete"
+                                    type="submit"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="6">
+                            No doctors found.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

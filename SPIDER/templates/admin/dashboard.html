@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Admin Dashboard</h1>
+
+<p>Welcome, {{ user.full_name }}</p>
+
+<div class="stats">
+    <div>
+        <h2>{{ users|length }}</h2>
+        <p>Users</p>
+    </div>
+
+    <div>
+        <h2>{{ hospitals|length }}</h2>
+        <p>Hospitals</p>
+    </div>
+
+    <div>
+        <h2>{{ doctors|length }}</h2>
+        <p>Doctors</p>
+    </div>
+
+    <div>
+        <h2>{{ bookings|length }}</h2>
+        <p>Bookings</p>
+    </div>
+</div>
+
+<hr>
+
+<h2>Recent Bookings</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Patient</th>
+        <th>Phone</th>
+        <th>Status</th>
+    </tr>
+
+    {% for booking in bookings %}
+    <tr>
+        <td>SEMS-{{ "%04d"|format(booking.id) }}</td>
+        <td>{{ booking.patient_name }}</td>
+        <td>{{ booking.phone }}</td>
+        <td>{{ booking.status }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4">No bookings found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

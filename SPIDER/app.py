@@ -474,6 +474,31 @@ def api_nearest():
 
     return jsonify(results[:5])
 
+@app.route('/view-db')
+def view_db():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user = db.session.get(User, session['user_id'])
+    if not user or user.role != 'admin':
+        return 'Access denied!'
+    
+    bookings = Booking.query.all()
+    result = []
+    for b in bookings:
+        result.append({
+            'id': b.id,
+            'patient_name': b.patient_name,
+            'phone': b.phone,
+            'age': b.age,
+            'emergency_type': b.emergency_type,
+            'bed_type': b.bed_type,
+            'status': b.status,
+            'hospital_id': b.hospital_id,
+            'created_at': str(b.created_at)
+        })
+    return jsonify(result)
+
 
 @app.route('/api/availability')
 def api_availability():

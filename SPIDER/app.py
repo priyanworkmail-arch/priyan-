@@ -543,6 +543,23 @@ with app.app_context():
     db.create_all()
     seed_data()
 
+@app.route('/create-admin')
+def create_admin():
+    existing = User.query.filter_by(username='admin').first()
+    if existing:
+        return 'Admin already exists!'
+    
+    admin = User(
+        full_name='Admin',
+        username='admin',
+        phone='9999999999',
+        role='admin'
+    )
+    admin.set_password('admin123')
+    db.session.add(admin)
+    db.session.commit()
+    return 'Admin created successfully!'
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 

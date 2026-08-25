@@ -499,6 +499,11 @@ def view_db():
         })
     return jsonify(result)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 
+    'sqlite:///sems.db'  # fallback for local
+)
+
 
 @app.route('/api/availability')
 def api_availability():

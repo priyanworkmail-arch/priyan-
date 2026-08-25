@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}
+Smart Emergency Medical Service — Home
+{% endblock %}
+
+{% block content %}
+
+<!-- =====================================================
+     HERO SECTION
+===================================================== -->
+
+<section class="hero">
+
+    <div class="container">
+
+        <!-- LIVE STATUS -->
+        <div class="hero-badge">
+            <span class="live-dot"></span>
+            LIVE AVAILABILITY TRACKING
+        </div>
+
+        <!-- TITLE -->
+        <h1>
+            Smart
+            <span class="highlight">Emergency</span>
+            <br>
+            Medical Service
+        </h1>
+
+        <!-- DESCRIPTION -->
+        <p>
+            Find available beds and doctors in real-time.
+            Book emergency beds instantly and locate the nearest
+            hospital to you.
+        </p>
+
+        <!-- HERO BUTTONS -->
+        <div class="hero-actions">
+
+            <!-- BOOK BED -->
+            <a href="{{ url_for('book') }}"
+               class="btn-primary-custom">
+
+                <i class="bi bi-hospital"></i>
+                Book a Bed Now
+
+            </a>
+
+            <!-- REGISTER PATIENT -->
+            <a href="{{ url_for('register') }}"
+               class="btn-register-custom">
+
+                <i class="bi bi-person-plus"></i>
+                Register as Patient
+
+            </a>
+
+            <!-- FIND NEAREST HOSPITAL -->
+            <a href="{{ url_for('nearest') }}"
+               class="btn-outline-custom">
+
+                <i class="bi bi-geo-alt"></i>
+                Find Nearest Hospital
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<div class="container">
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <div class="stats-grid">
+
+        <!-- AVAILABLE BEDS -->
+        <div class="stat-card">
+
+            <div class="stat-icon beds">
+                <i class="bi bi-bed"></i>
+            </div>
+
+            <div class="stat-number" id="stat-beds">
+                {{ available_beds }}
+            </div>
+
+            <div class="stat-label">
+                Beds Available Now
+            </div>
+
+        </div>
+
+
+        <!-- AVAILABLE DOCTORS -->
+        <div class="stat-card">
+
+            <div class="stat-icon doctors">
+                <i class="bi bi-person-badge"></i>
+            </div>
+
+            <div class="stat-number" id="stat-doctors">
+                {{ available_doctors }}
+            </div>
+
+            <div class="stat-label">
+                Doctors On Duty
+            </div>
+
+        </div>
+
+
+        <!-- PARTNER HOSPITALS -->
+        <div class="stat-card">
+
+            <div class="stat-icon hospitals">
+                <i class="bi bi-building"></i>
+            </div>
+
+            <div class="stat-number">
+                {{ hospitals|length }}
+            </div>
+
+            <div class="stat-label">
+                Partner Hospitals
+            </div>
+
+        </div>
+
+
+        <!-- RECENT BOOKINGS -->
+        <div class="stat-card">
+
+            <div class="stat-icon bookings">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div class="stat-number">
+                {{ recent_bookings|length }}
+            </div>
+
+            <div class="stat-label">
+                Recent Bookings
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         HOSPITAL AVAILABILITY HEADER
+    ================================================= -->
+
+    <div class="d-flex justify-content-between align-items-end mb-3">
+
+        <div>
+
+            <h2 class="section-title">
+                Hospital Availability
+            </h2>
+
+            <p class="section-subtitle mb-0">
+                Real-time bed and doctor status
+                across all partner hospitals
+            </p>
+
+        </div>
+
+
+        <!-- VIEW ALL HOSPITALS -->
+        <a href="{{ url_for('hospitals') }}"
+           class="btn-outline-custom btn-sm">
+
+            View All
+            <i class="bi bi-arrow-right"></i>
+
+        </a>
+
+    </div>
+
+
+    <!-- =================================================
+         HOSPITAL CARDS
+    ================================================= -->
+
+    <div class="row g-4 mb-5">
+
+        {% for hospital in hospitals %}
+
+        <!-- Calculate percentages BEFORE HTML style -->
+        {% if hospital.total_beds %}
+            {% set bed_percent =
+                (hospital.available_beds / hospital.total_beds * 100)|int
+            %}
+        {% else %}
+            {% set bed_percent = 0 %}
+        {% endif %}
+
+
+        {% if hospital.icu_beds %}
+            {% set icu_percent =
+                (hospital.available_icu / hospital.icu_beds * 100)|int
+            %}
+        {% else %}
+            {% set icu_percent = 0 %}
+        {% endif %}
+
+
+        {% set available_doctors_count =
+            hospital.doctors
+            |selectattr('is_available')
+            |list
+            |length
+        %}
+
+        {% set total_doctors_count =
+            hospital.doctors|length
+        %}
+
+
+        {% if total_doctors_count %}
+            {% set doctor_percent =
+                (available_doctors_count / total_doctors_count * 100)|int
+            %}
+        {% else %}
+            {% set doctor_percent = 0 %}
+        {% endif %}
+
+
+        <!-- =================================================
+             HOSPITAL CARD
+        ================================================= -->
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="hospital-card">
+
+
+                <!-- =========================================
+                     HOSPITAL HEADER
+                ========================================== -->
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+
+                        <div class="hospital-name">
+                            {{ hospital.name }}
+                        </div>
+
+                        <div class="hospital-location">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                            {{ hospital.city }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BADGES -->
+
+                    <div class="d-flex gap-1 flex-column align-items-end">
+
+                        {% if hospital.is_24x7 %}
+
+                        <span class="badge-24x7">
+                            24x7
+                        </span>
+
+                        {% endif %}
+
+                        <span class="rating">
+
+                            <i class="bi bi-star-fill"></i>
+
+                            {{ hospital.rating }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     GENERAL BEDS
+                ========================================== -->
+
+                <div class="availability-bar">
+
+                    <div class="availability-label">
+
+                        <span>
+                            General Beds
+                        </span>
+
+                        <span>
+                            {{ hospital.available_beds }}
+                            /
+                            {{ hospital.total_beds }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-custom">
+
+                        <div
+                            class="progress-fill beds"
+                            style="--bed-percent: {{ bed_percent }}%; width: var(--bed-percent)">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     ICU BEDS
+                ========================================== -->
+
+                <div class="availability-bar">
+
+                    <div class="availability-label">
+
+                        <span>
+                            ICU Beds
+                        </span>
+
+                        <span>
+                            {{ hospital.available_icu }}
+                            /
+                            {{ hospital.icu_beds }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-custom">
+
+                        <div
+                            class="progress-fill icu"
+                            style="width: {{ icu_percent }}%;">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     DOCTORS
+                ========================================== -->
+
+                <div class="availability-bar">
+
+                    <div class="availability-label">
+
+                        <span>
+                            Doctors Available
+                        </span>
+
+                        <span>
+                            {{ available_doctors_count }}
+                            /
+                            {{ total_doctors_count }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-custom">
+
+                        <div
+                            class="progress-fill doctors"
+                            style="width: {{ doctor_percent }}%;">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     CARD BUTTONS
+                ========================================== -->
+
+                <div class="card-actions">
+
+
+                    <!-- BOOK BED -->
+
+                    <a
+                        href="{{ url_for('book', hospital_id=hospital.id) }}"
+                        class="btn-sm-custom btn-book">
+
+                        <i class="bi bi-plus-circle"></i>
+
+                        Book Bed
+
+                    </a>
+
+
+                    <!-- HOSPITAL DETAILS -->
+
+                    <a
+                        href="{{ url_for('hospital_detail',
+                                         hospital_id=hospital.id) }}"
+                        class="btn-sm-custom btn-view">
+
+                        Details
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <!-- =================================================
+             NO HOSPITALS
+        ================================================= -->
+
+        <div class="col-12">
+
+            <div class="alert alert-info text-center">
+
+                <i class="bi bi-info-circle"></i>
+
+                No hospitals are currently available.
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

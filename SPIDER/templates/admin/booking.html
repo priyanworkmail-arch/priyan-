@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Bookings - SEMS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        nav {
+            background: #111827;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h2 {
+            color: white;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 40px auto;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.07);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        select {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+        }
+
+        button {
+            padding: 8px 13px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        .confirmed {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: #ca8a04;
+            font-weight: bold;
+        }
+
+        .cancelled {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .completed {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <h2>SEMS</h2>
+
+    <div>
+
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('admin') }}">
+            Administration
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Manage Bookings</h1>
+
+        <p>
+            View and manage all hospital emergency bookings.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Patient</th>
+
+                    <th>Phone</th>
+
+                    <th>Age</th>
+
+                    <th>Hospital</th>
+
+                    <th>Emergency</th>
+
+                    <th>Bed</th>
+
+                    <th>Date</th>
+
+                    <th>Status</th>
+
+                    <th>Update</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for booking in bookings %}
+
+                <tr>
+
+                    <td>
+                        SEMS-{{ "%04d"|format(booking.id) }}
+                    </td>
+
+                    <td>
+                        {{ booking.patient_name }}
+                    </td>
+
+                    <td>
+                        {{ booking.phone }}
+                    </td>
+
+                    <td>
+                        {{ booking.age }}
+                    </td>
+
+                    <td>
+                        {{ booking.hospital.name }}
+                    </td>
+
+                    <td>
+                        {{ booking.emergency_type }}
+                    </td>
+
+                    <td>
+                        {{ booking.bed_type }}
+                    </td>
+
+                    <td>
+
+                        {% if booking.created_at %}
+
+                            {{ booking.created_at.strftime('%d %b %Y %H:%M') }}
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <span class="{{ booking.status|lower }}">
+
+                            {{ booking.status }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('update_booking_status', booking_id=booking.id) }}"
+                        >
+
+                            <select name="status">
+
+                                <option
+                                    value="Confirmed"
+                                    {% if booking.status == 'Confirmed' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    Confirmed
+                                </option>
+
+                                <option
+                                    value="Pending"
+                                    {% if booking.status == 'Pending' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    Pending
+                                </option>
+
+                                <option
+                                    value="Completed"
+                                    {% if booking.status == 'Completed' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    Completed
+                                </option>
+
+                                <option
+                                    value="Cancelled"
+                                    {% if booking.status == 'Cancelled' %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    Cancelled
+                                </option>
+
+                            </select>
+
+                            <button type="submit">
+                                Update
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="10">
+                        No bookings found.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

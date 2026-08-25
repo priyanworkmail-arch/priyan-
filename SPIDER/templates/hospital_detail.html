@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ hospital.name }} — Smart EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <a href="{{ url_for('hospitals') }}" class="btn-outline-custom btn-sm mb-3" style="padding: 0.4rem 1rem;">
+        <i class="bi bi-arrow-left"></i> Back to Hospitals
+    </a>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="form-card mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="section-title">{{ hospital.name }}</h2>
+                        <p class="section-subtitle mb-0">
+                            <i class="bi bi-geo-alt"></i> {{ hospital.address }}, {{ hospital.city }}
+                        </p>
+                    </div>
+                    <span class="rating" style="font-size: 1.1rem;"><i class="bi bi-star-fill"></i> {{ hospital.rating }}</span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4">
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-number" style="font-size: 1.8rem; color: var(--accent);">{{ hospital.available_beds }}</div>
+                            <div class="stat-label">General Beds Free</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-number" style="font-size: 1.8rem; color: var(--emergency);">{{ hospital.available_icu }}</div>
+                            <div class="stat-label">ICU Beds Free</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-number" style="font-size: 1.8rem; color: var(--success);">
+                                {{ hospital.doctors|selectattr('is_available')|list|length }}
+                            </div>
+                            <div class="stat-label">Doctors Available</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="color: var(--text-secondary);">
+                    <p><i class="bi bi-telephone"></i> Phone: {{ hospital.phone }}</p>
+                    <p><i class="bi bi-exclamation-triangle-fill" style="color: var(--emergency);"></i> Emergency: {{ hospital.emergency_phone }}</p>
+                    {% if hospital.is_24x7 %}<p><i class="bi bi-clock"></i> Open 24 hours, 7 days a week</p>{% endif %}
+                </div>
+
+                <a href="{{ url_for('book', hospital_id=hospital.id) }}" class="btn-primary-custom mt-3">
+                    <i class="bi bi-hospital"></i> Book a Bed at This Hospital
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="form-card">
+                <h5 class="mb-3"><i class="bi bi-person-badge"></i> Doctors</h5>
+                {% for doctor in hospital.doctors %}
+                <div class="doctor-card">
+                    <div class="doctor-avatar">{{ doctor.name.split()[1][0] if doctor.name.split()|length > 1 else doctor.name[0] }}</div>
+                    <div class="doctor-info flex-grow-1">
+                        <h6>{{ doctor.name }}</h6>
+                        <small>{{ doctor.specialty }} · {{ doctor.experience_years }} yrs exp</small>
+                        <br>
+                        <small>Shift: {{ doctor.shift }}</small>
+                    </div>
+                    {% if doctor.is_available %}
+                    <span class="badge-available">Available</span>
+                    {% else %}
+                    <span class="badge-unavailable">Busy</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

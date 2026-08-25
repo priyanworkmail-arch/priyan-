@@ -1,0 +1,1625 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>SEMS | Admin Dashboard</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --primary-light: #ccfbf1;
+
+            --purple: #7c3aed;
+            --purple-light: #ede9fe;
+
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+
+            --success: #059669;
+            --success-light: #d1fae5;
+
+            --dark: #0f172a;
+            --text: #334155;
+            --muted: #64748b;
+
+            --background: #f5f7fb;
+            --white: #ffffff;
+
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .topbar {
+            height: 72px;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 1000;
+
+            background: rgba(255, 255, 255, 0.97);
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            box-shadow:
+                0 4px 20px rgba(15, 23, 42, 0.05);
+        }
+
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: var(--primary);
+
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    #14b8a6
+                );
+
+            font-size: 21px;
+
+            box-shadow:
+                0 7px 18px rgba(15, 118, 110, 0.22);
+        }
+
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .view-site {
+            padding: 9px 14px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 9px;
+
+            color: var(--text);
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .view-site:hover {
+            background: #f8fafc;
+        }
+
+
+        .logout {
+            padding: 9px 14px;
+
+            border-radius: 9px;
+
+            border: 1px solid #fecaca;
+
+            color: var(--danger);
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .logout:hover {
+            background: #fef2f2;
+        }
+
+
+        /* =====================================================
+           LAYOUT
+        ===================================================== */
+
+        .layout {
+            display: flex;
+
+            min-height: calc(100vh - 72px);
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            width: 250px;
+
+            flex-shrink: 0;
+
+            background: var(--dark);
+
+            padding: 24px 15px;
+
+            position: sticky;
+            top: 72px;
+
+            height: calc(100vh - 72px);
+
+            overflow-y: auto;
+        }
+
+
+        .admin-label {
+            color: #94a3b8;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            letter-spacing: 0.12em;
+
+            text-transform: uppercase;
+
+            padding: 0 12px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .side-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 12px 13px;
+
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: #cbd5e1;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: 0.2s ease;
+        }
+
+
+        .side-link:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+
+        .side-link.active {
+            background: #134e4a;
+            color: #ffffff;
+        }
+
+
+        .side-icon {
+            width: 25px;
+
+            text-align: center;
+
+            font-size: 16px;
+        }
+
+
+        .sidebar-divider {
+            height: 1px;
+
+            background: #1e293b;
+
+            margin: 18px 10px;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+            flex: 1;
+
+            min-width: 0;
+
+            padding: 32px;
+        }
+
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 28px;
+        }
+
+
+        .page-header h1 {
+            color: var(--dark);
+
+            font-size: 28px;
+            font-weight: 800;
+
+            margin-bottom: 7px;
+        }
+
+
+        .page-header p {
+            color: var(--muted);
+
+            font-size: 14px;
+        }
+
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 8px 12px;
+
+            border-radius: 8px;
+
+            background: var(--purple-light);
+
+            color: var(--purple);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           STAT CARDS
+        ===================================================== */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 18px;
+
+            margin-bottom: 28px;
+        }
+
+
+        .stat-card {
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            padding: 21px;
+
+            box-shadow:
+                0 5px 18px rgba(15, 23, 42, 0.035);
+
+            transition: 0.2s ease;
+        }
+
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 25px rgba(15, 23, 42, 0.07);
+        }
+
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 17px;
+        }
+
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            font-size: 19px;
+        }
+
+
+        .icon-users {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+
+        .icon-hospitals {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+
+        .icon-doctors {
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+
+
+        .icon-bookings {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+
+        .stat-label {
+            color: var(--muted);
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        .stat-number {
+            color: var(--dark);
+
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           CONTENT GRID
+        ===================================================== */
+
+        .content-grid {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 2fr)
+                minmax(280px, 1fr);
+
+            gap: 22px;
+        }
+
+
+        .card {
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 5px 18px rgba(15, 23, 42, 0.035);
+        }
+
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 20px 21px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+
+        .card-title {
+            color: var(--dark);
+
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+
+        .card-subtitle {
+            color: var(--muted);
+
+            font-size: 11px;
+
+            margin-top: 4px;
+        }
+
+
+        .card-link {
+            color: var(--primary);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .card-link:hover {
+            text-decoration: underline;
+        }
+
+
+        /* =====================================================
+           BOOKINGS TABLE
+        ===================================================== */
+
+        .table-wrapper {
+            width: 100%;
+
+            overflow-x: auto;
+        }
+
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 650px;
+        }
+
+
+        th {
+            padding: 13px 18px;
+
+            background: #f8fafc;
+
+            color: var(--muted);
+
+            text-align: left;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.05em;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+
+        td {
+            padding: 14px 18px;
+
+            color: var(--text);
+
+            font-size: 12px;
+
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        .booking-id {
+            color: var(--primary);
+
+            font-weight: 800;
+        }
+
+
+        .patient-name {
+            color: var(--dark);
+
+            font-weight: 700;
+        }
+
+
+        .hospital-name {
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        .status {
+            display: inline-flex;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+
+        .status-confirmed {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+
+        .status-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+
+        .status-cancelled {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+
+        .status-default {
+            background: #f1f5f9;
+            color: var(--muted);
+        }
+
+
+        /* =====================================================
+           QUICK ACTIONS
+        ===================================================== */
+
+        .actions-list {
+            padding: 12px;
+        }
+
+
+        .action {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 13px;
+
+            border-radius: 10px;
+
+            transition: 0.2s ease;
+        }
+
+
+        .action:hover {
+            background: #f8fafc;
+        }
+
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: var(--primary-light);
+
+            color: var(--primary);
+
+            font-size: 17px;
+        }
+
+
+        .action-text {
+            flex: 1;
+        }
+
+
+        .action-title {
+            color: var(--dark);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .action-description {
+            color: var(--muted);
+
+            font-size: 10px;
+
+            margin-top: 3px;
+        }
+
+
+        .action-arrow {
+            color: #94a3b8;
+
+            font-size: 16px;
+        }
+
+
+        /* =====================================================
+           SYSTEM STATUS
+        ===================================================== */
+
+        .system-status {
+            padding: 20px;
+        }
+
+
+        .system-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 12px 0;
+
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+
+        .system-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .system-name {
+            color: var(--text);
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        .online {
+            display: flex;
+            align-items: center;
+
+            gap: 6px;
+
+            color: var(--success);
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+
+        .online-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--success);
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        .empty {
+            padding: 45px 20px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+
+        .empty-icon {
+            font-size: 32px;
+
+            margin-bottom: 10px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                padding: 24px;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 20px 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .view-site {
+                display: none;
+            }
+
+            .brand span:last-child {
+                display: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     TOP NAVIGATION
+========================================================= -->
+
+<header class="topbar">
+
+    <a
+        href="{{ url_for('admin_dashboard') }}"
+        class="brand"
+    >
+
+        <span class="brand-icon">
+            ✚
+        </span>
+
+        <span>
+            SEMS Admin
+        </span>
+
+    </a>
+
+
+    <div class="top-actions">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="view-site"
+        >
+            ← View Website
+        </a>
+
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     PAGE LAYOUT
+========================================================= -->
+
+<div class="layout">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="admin-label">
+            Administration
+        </div>
+
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="side-link active"
+        >
+            <span class="side-icon">▦</span>
+            Dashboard
+        </a>
+
+
+        <a
+            href="{{ url_for('hospitals') }}"
+            class="side-link"
+        >
+            <span class="side-icon">🏥</span>
+            Hospitals
+        </a>
+
+
+        <a
+            href="{{ url_for('bookings') }}"
+            class="side-link"
+        >
+            <span class="side-icon">📋</span>
+            Bookings
+        </a>
+
+
+        <div class="sidebar-divider"></div>
+
+
+        <div class="admin-label">
+            Management
+        </div>
+
+
+        <!-- These links point to your existing
+             admin HTML files when routes are added -->
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="side-link"
+        >
+            <span class="side-icon">👥</span>
+            Users
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="side-link"
+        >
+            <span class="side-icon">🩺</span>
+            Doctors
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="side-link"
+        >
+            <span class="side-icon">🛏</span>
+            Bed Management
+        </a>
+
+
+        <div class="sidebar-divider"></div>
+
+
+        <a
+            href="{{ url_for('profile') }}"
+            class="side-link"
+        >
+            <span class="side-icon">⚙</span>
+            My Profile
+        </a>
+
+
+        <a
+            href="{{ url_for('index') }}"
+            class="side-link"
+        >
+            <span class="side-icon">🌐</span>
+            Public Website
+        </a>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ===================================================== -->
+
+    <main class="main">
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Admin Dashboard
+                </h1>
+
+                <p>
+                    Manage your SEMS platform from one place.
+                </p>
+
+            </div>
+
+
+            <div class="admin-badge">
+
+                🛡
+
+                Administrator
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             STATISTICS
+        ================================================= -->
+
+        <section class="stats-grid">
+
+
+            <!-- USERS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon icon-users">
+                        👥
+                    </div>
+
+                    <span class="stat-label">
+                        Registered
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+
+                    {% if users is defined %}
+                        {{ users|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+
+                </div>
+
+                <div class="stat-label">
+                    Users
+                </div>
+
+            </div>
+
+
+
+            <!-- HOSPITALS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon icon-hospitals">
+                        🏥
+                    </div>
+
+                    <span class="stat-label">
+                        Active
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+
+                    {% if hospitals is defined %}
+                        {{ hospitals|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+
+                </div>
+
+                <div class="stat-label">
+                    Hospitals
+                </div>
+
+            </div>
+
+
+
+            <!-- DOCTORS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon icon-doctors">
+                        🩺
+                    </div>
+
+                    <span class="stat-label">
+                        Registered
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+
+                    {% if doctors is defined %}
+                        {{ doctors|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+
+                </div>
+
+                <div class="stat-label">
+                    Doctors
+                </div>
+
+            </div>
+
+
+
+            <!-- BOOKINGS -->
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon icon-bookings">
+                        📋
+                    </div>
+
+                    <span class="stat-label">
+                        Total
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+
+                    {% if bookings is defined %}
+                        {{ bookings|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+
+                </div>
+
+                <div class="stat-label">
+                    Bookings
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================= -->
+
+        <section class="content-grid">
+
+
+            <!-- =================================================
+                 BOOKINGS
+            ================================================= -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <div class="card-title">
+                            Recent Bookings
+                        </div>
+
+                        <div class="card-subtitle">
+                            Latest emergency bed bookings
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('bookings') }}"
+                        class="card-link"
+                    >
+                        View All →
+                    </a>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    {% if bookings %}
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Booking
+                                </th>
+
+                                <th>
+                                    Patient
+                                </th>
+
+                                <th>
+                                    Hospital
+                                </th>
+
+                                <th>
+                                    Bed
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for booking in bookings[:10] %}
+
+                            <tr>
+
+                                <td>
+
+                                    <span class="booking-id">
+
+                                        SEMS-{{
+                                            "%04d"|format(
+                                                booking.id
+                                            )
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="patient-name">
+
+                                        {{ booking.patient_name }}
+
+                                    </div>
+
+                                    <div class="hospital-name">
+
+                                        {{ booking.phone }}
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="patient-name">
+
+                                        {{ booking.hospital.name }}
+
+                                    </div>
+
+                                    <div class="hospital-name">
+
+                                        {{ booking.hospital.city }}
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    {{ booking.bed_type }}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if booking.status == 'Confirmed' %}
+
+                                        <span class="status status-confirmed">
+                                            Confirmed
+                                        </span>
+
+                                    {% elif booking.status == 'Pending' %}
+
+                                        <span class="status status-pending">
+                                            Pending
+                                        </span>
+
+                                    {% elif booking.status == 'Cancelled' %}
+
+                                        <span class="status status-cancelled">
+                                            Cancelled
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status status-default">
+                                            {{ booking.status }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                    {% else %}
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            📋
+                        </div>
+
+                        No bookings found.
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 RIGHT COLUMN
+            ================================================= -->
+
+            <div>
+
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <div class="card-title">
+                                Quick Actions
+                            </div>
+
+                            <div class="card-subtitle">
+                                Manage the platform
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="actions-list">
+
+
+                        <a
+                            href="{{ url_for('hospitals') }}"
+                            class="action"
+                        >
+
+                            <div class="action-icon">
+                                🏥
+                            </div>
+
+                            <div class="action-text">
+
+                                <div class="action-title">
+                                    Hospitals
+                                </div>
+
+                                <div class="action-description">
+                                    View hospital information
+                                </div>
+
+                            </div>
+
+                            <div class="action-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('bookings') }}"
+                            class="action"
+                        >
+
+                            <div class="action-icon">
+                                📋
+                            </div>
+
+                            <div class="action-text">
+
+                                <div class="action-title">
+                                    Bookings
+                                </div>
+
+                                <div class="action-description">
+                                    View emergency bookings
+                                </div>
+
+                            </div>
+
+                            <div class="action-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('profile') }}"
+                            class="action"
+                        >
+
+                            <div class="action-icon">
+                                👤
+                            </div>
+
+                            <div class="action-text">
+
+                                <div class="action-title">
+                                    Admin Profile
+                                </div>
+
+                                <div class="action-description">
+                                    Manage your account
+                                </div>
+
+                            </div>
+
+                            <div class="action-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SYSTEM STATUS -->
+
+                <div
+                    class="card"
+                    style="margin-top: 22px;"
+                >
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <div class="card-title">
+                                System Status
+                            </div>
+
+                            <div class="card-subtitle">
+                                Current platform services
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-status">
+
+
+                        <div class="system-row">
+
+                            <span class="system-name">
+                                Flask Application
+                            </span>
+
+                            <span class="online">
+
+                                <span class="online-dot"></span>
+
+                                Online
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span class="system-name">
+                                Database
+                            </span>
+
+                            <span class="online">
+
+                                <span class="online-dot"></span>
+
+                                Connected
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span class="system-name">
+                                Hospital Data
+                            </span>
+
+                            <span class="online">
+
+                                <span class="online-dot"></span>
+
+                                Available
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span class="system-name">
+                                Emergency API
+                            </span>
+
+                            <span class="online">
+
+                                <span class="online-dot"></span>
+
+                                Active
+
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+</body>
+
+</html>
+```
